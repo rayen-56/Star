@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Star Certificate</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+
+  <div class="container" id="mainContent">
+    <h1>Hey Love! I bought you a star! 🌟</h1>
+    <!-- Button now hides content first, then redirects -->
+    <button id="showCertificateBtn">See your Certificate</button>
+
+
+
+  <script>
+    document.getElementById("showCertificateBtn").addEventListener("click", function() {
+      // 1. Fade out the entire container
+      document.getElementById("mainContent").classList.add("fade-out");
+      
+      // 2. Wait for the animation to finish, then redirect
+      setTimeout(function() {
+        window.location.href = "image.html";
+      }, 500); // Matches the 0.5s fade-out duration
+    });
+  </script>
+  <script src="script.js"></script>
+<audio id="bgMusic" loop style="display:none">
+  <source src="stars.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // 1. First try: Standard autoplay
+  const music = document.getElementById('bgMusic');
+  music.volume = 0.4;
+  music.muted = true; // Start muted to bypass restrictions
+  
+  let playAttempt = setInterval(() => {
+    music.play()
+      .then(() => {
+        clearInterval(playAttempt);
+        // 2. Unmute after 2 seconds (hidden from user)
+        setTimeout(() => { music.muted = false; }, 2000);
+      })
+      .catch(e => {});
+  }, 1000);
+
+  // 3. Fallback: Unmute on any user interaction
+  document.addEventListener('click', () => {
+    music.muted = false;
+  }, { once: true });
+</script>
+</body>
+</html>
