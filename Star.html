@@ -51,7 +51,7 @@
             width: 0;
             height: 0;
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
             filter: blur(0.3px);
         }
 
@@ -127,8 +127,9 @@
             font-size: 1px;
             font-weight: bold;
             white-space: nowrap;
-            left: 50%;
-            transform: translateX(15px);
+            left: 100%;
+            top: 50%;
+            transform: translateX(20px) ;
             opacity: 1;
             text-shadow: 0 0 5px rgba(220, 239, 242, 0.8);
             z-index: 100;
@@ -146,9 +147,9 @@
             }
             
             .zoom-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 18px;
+                width: 3px;
+                height: 3px;
+                font-size: 1px;
             }
         }
 
@@ -176,8 +177,8 @@
         .zoom-btn {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.5);
+            border-radius: 10%;
+            background: rgba(0,0,0,.5);
             color: white;
             border: none;
             font-size: 10px;
@@ -337,7 +338,8 @@
             
             // Scale the name inversely to keep it readable
             const name = specialStarElement.querySelector('.name');
-            name.style.transform = `translateX(15px) scale(${1/scaleFactor})`;
+            name.style.transform = `translateX(25px,-50)`;
+            name.style.fontSize = `${2/scaleFactor}px`; 
         }
 
         // Update view transform
