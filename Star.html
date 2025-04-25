@@ -128,7 +128,7 @@
             font-weight: bold;
             white-space: nowrap;
             left: 50%;
-            transform: translateX(15px) scale(1);
+            transform: translateX(15px);
             opacity: 1;
             text-shadow: 0 0 5px rgba(220, 239, 242, 0.8);
             z-index: 100;
@@ -337,7 +337,7 @@
             
             // Scale the name inversely to keep it readable
             const name = specialStarElement.querySelector('.name');
-            name.style.transform = `translateX(15px) scale(${1.5/scaleFactor})`;
+            name.style.transform = `translateX(15px) scale(${1/scaleFactor})`;
         }
 
         // Update view transform
