@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=0.5">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Starry Sky Explorer</title>
     <style>
         body {
@@ -29,7 +32,7 @@
             width: 100%;
             height: 100%;
             transform-origin: 0 0;
-            transition: transform 0.1s ease-out;
+            will-change: transform;
         }
 
         .star {
@@ -38,6 +41,7 @@
             pointer-events: none;
             animation: twinkle var(--twinkle-duration) infinite ease-in-out;
             box-shadow: 0 0 5px 1px rgba(255,255,255,0.5);
+            backface-visibility: hidden;
         }
 
         @keyframes twinkle {
@@ -45,7 +49,6 @@
             50% { opacity: var(--max-opacity); transform: scale(1.2); }
         }
 
-        /* Realistic glowing star - no visible lines, only light */
         .special-star {
             position: absolute;
             width: 0;
@@ -53,6 +56,7 @@
             pointer-events: none;
             z-index: 20;
             filter: blur(0.3px);
+            transform-origin: center center;
         }
 
         .special-star .core {
@@ -64,14 +68,15 @@
                 rgba(255, 255, 255, 1) 0%,
                 rgba(220, 239, 242, 0.9) 20%,
                 rgba(166, 210, 255, 0.5) 100%,
-                transparent 1000%
+                transparent 100%
             );
             border-radius: 100%;
             box-shadow: 
                 0 0 20px 5px rgba(220, 239, 242, 0.8),
                 0 0 40px 15px rgba(166, 210, 255, 0.4);
             animation: core-pulse 4s infinite ease-in-out;
-            transform: translate(-10%, -10%);
+            transform: translate(-50%, -50%);
+            backface-visibility: hidden;
         }
 
         @keyframes core-pulse {
@@ -81,43 +86,22 @@
 
         .special-star .glow {
             position: absolute;
-            width: 1px;
-            height: 1px;
+            width: 60px;
+            height: 60px;
             background: radial-gradient(
                 circle at center,
-                rgba(220, 239, 242, 0.2) 0%,
-                rgba(166, 210, 255, 0.1) 40%,
-                transparent 100%
+                rgba(220, 239, 242, 0.1) 0%,
+                rgba(166, 210, 255, 0.05) 40%,
+                transparent 70%
             );
-            border-radius: 10%;
+            border-radius: 50%;
             animation: glow-pulse 6s infinite alternate;
             transform: translate(-50%, -50%);
         }
 
         @keyframes glow-pulse {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
-            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
-        }
-
-        .special-star .sparkles {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            transform: translate(-50%, -50%);
-        }
-
-        .special-star .sparkle {
-            position: absolute;
-            background: white;
-            border-radius: 10%;
-            filter: blur(1px);
-            animation: sparkle-flicker 3s infinite alternate;
-            opacity: 0;
-        }
-
-        @keyframes sparkle-flicker {
-            0%, 40%, 60%, 100% { opacity: 0; transform: scale(0); }
-            50% { opacity: 0.8; transform: scale(1); }
+            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
         }
 
         .special-star .name {
@@ -127,29 +111,17 @@
             font-size: 12px;
             font-weight: bold;
             white-space: nowrap;
-            left: 50%;
-            transform: translateX(15px) ;
+            left: 100%;
+            top: 50%;
+            transform: translate(15px, -50%);
             opacity: 1;
             text-shadow: 0 0 5px rgba(220, 239, 242, 0.8);
             z-index: 100;
             display: block;
-        }
-
-        @media (max-width: 600px) {
-            .special-star .name {
-                font-size: 1px;
-            }
-            
-            #zoom-controls {
-                bottom: 10px;
-                left: 10px;
-            }
-            
-            .zoom-btn {
-                width: 3px;
-                height: 3px;
-                font-size: 1px;
-            }
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            will-change: transform;
         }
 
         #zoom-level {
@@ -180,11 +152,30 @@
             background: rgba(0,0,0,0.5);
             color: white;
             border: none;
-            font-size: 10px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            user-select: none;
+        }
+
+        @media (max-width: 600px) {
+            .special-star .name {
+                font-size: 10px;
+                transform: translate(12px, -50%);
+            }
+            
+            #zoom-controls {
+                bottom: 10px;
+                left: 10px;
+            }
+            
+            .zoom-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -234,20 +225,18 @@
             y: 0
         };
 
-        // Create normal stars with shiny effects
+        // Create normal stars
         function createStars() {
             starfield.innerHTML = '';
             
             const fieldWidth = viewportWidth * config.starFieldSize;
             const fieldHeight = viewportHeight * config.starFieldSize;
             
-            // Position the special star at center
             specialStar.x = 0;
             specialStar.y = 0;
             
             createSpecialStar();
             
-            // Create regular stars with twinkling effects
             for (let i = 0; i < config.starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -255,7 +244,6 @@
                 const x = (Math.random() * fieldWidth) - fieldWidth/2;
                 const y = (Math.random() * fieldHeight) - fieldHeight/2;
                 
-                // Random size and twinkling properties
                 const size = Math.random() * 1 + 0.5;
                 const minOpacity = Math.random() * 0.3 + 0.1;
                 const maxOpacity = minOpacity + Math.random() * 0.5 + 0.2;
@@ -276,52 +264,25 @@
             }
         }
 
-        // Create realistic glowing special star
+        // Create special star
         function createSpecialStar() {
             const specialStarElement = document.createElement('div');
             specialStarElement.className = 'special-star';
             specialStarElement.dataset.x = specialStar.x;
             specialStarElement.dataset.y = specialStar.y;
             
-            // Create core glow
             const core = document.createElement('div');
             core.className = 'core';
             
-            // Create outer glow
             const glow = document.createElement('div');
             glow.className = 'glow';
-          
-            // Create sparkling effect
-            const sparkles = document.createElement('div');
-            sparkles.className = 'sparkles';
             
-            // Create random sparkles
-            for (let i = 0; i < 12; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                
-                const size = Math.random() * 3 + 1;
-                const distance = Math.random() * 40 + 20;
-                const angle = Math.random() * Math.PI * 2;
-                const delay = Math.random() * 5;
-                
-                sparkle.style.width = `${size}px`;
-                sparkle.style.height = `${size}px`;
-                sparkle.style.left = `${50 + Math.cos(angle) * distance}px`;
-                sparkle.style.top = `${50 + Math.sin(angle) * distance}px`;
-                sparkle.style.animationDelay = `${delay}s`;
-                
-                sparkles.appendChild(sparkle);
-            }
-            
-            // Create name label
             const name = document.createElement('div');
             name.className = 'name';
             name.textContent = specialStar.name;
             
             specialStarElement.appendChild(core);
             specialStarElement.appendChild(glow);
-            specialStarElement.appendChild(sparkles);
             specialStarElement.appendChild(name);
             specialStarElement.style.left = `${specialStar.x}px`;
             specialStarElement.style.top = `${specialStar.y}px`;
@@ -329,25 +290,24 @@
             starfield.appendChild(specialStarElement);
         }
 
-        // Update special star based on zoom level
+        // Update special star
         function updateSpecialStar() {
             const specialStarElement = document.querySelector('.special-star');
             const scaleFactor = Math.min(3, scale / 2);
             specialStarElement.style.transform = `scale(${scaleFactor})`;
             
-            // Scale the name inversely to keep it readable
             const name = specialStarElement.querySelector('.name');
-            name.style.transform = `translateX(15px) scale(${1/scaleFactor})`;
+            name.style.fontSize = `${12/scaleFactor}px`;
         }
 
-        // Update view transform
+        // Update view
         function updateView() {
             starfield.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
             zoomLevelDisplay.textContent = `Zoom: ${scale.toFixed(1)}x`;
             updateSpecialStar();
         }
 
-        // Handle zoom at specific point
+        // Handle zoom
         function zoomAtPoint(newScale, clientX, clientY) {
             const worldX = (clientX - posX) / scale;
             const worldY = (clientY - posY) / scale;
@@ -361,77 +321,78 @@
 
         // Initialize
         function init() {
-            createStars();
+            // Detect device pixel ratio
+            const dpr = window.devicePixelRatio || 1;
+            if (dpr > 1) {
+                document.documentElement.style.fontSize = `${16/dpr}px`;
+            }
             
-            // Center view
+            createStars();
             posX = viewportWidth / 2;
             posY = viewportHeight / 2;
             updateView();
             
-            // Event listeners for desktop
+            // Event listeners
             window.addEventListener('wheel', function(e) {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -1 : 1;
-                const newScale = scale + delta * config.zoomStep;
-                zoomAtPoint(newScale, e.clientX, e.clientY);
+                zoomAtPoint(scale + delta * config.zoomStep, e.clientX, e.clientY);
             }, { passive: false });
             
-            // Event listeners for touch devices
-            window.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                if (e.touches.length === 1) {
-                    isDragging = true;
-                    lastX = e.touches[0].clientX;
-                    lastY = e.touches[0].clientY;
-                } else if (e.touches.length === 2) {
-                    const touch1 = e.touches[0];
-                    const touch2 = e.touches[1];
-                    touchStartDistance = Math.hypot(
-                        touch2.clientX - touch1.clientX,
-                        touch2.clientY - touch1.clientY
-                    );
-                    initialScale = scale;
-                }
-            }, { passive: false });
-            
-            window.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-                
-                if (e.touches.length === 1 && isDragging) {
-                    const touch = e.touches[0];
-                    const dx = touch.clientX - lastX;
-                    const dy = touch.clientY - lastY;
-                    
-                    posX += dx;
-                    posY += dy;
-                    
-                    lastX = touch.clientX;
-                    lastY = touch.clientY;
-                    
-                    updateView();
-                } else if (e.touches.length === 2) {
-                    const touch1 = e.touches[0];
-                    const touch2 = e.touches[1];
-                    const currentDistance = Math.hypot(
-                        touch2.clientX - touch1.clientX,
-                        touch2.clientY - touch1.clientY
-                    );
-                    
-                    if (touchStartDistance > 0) {
-                        const centerX = (touch1.clientX + touch2.clientX) / 2;
-                        const centerY = (touch1.clientY + touch2.clientY) / 2;
-                        const scaleFactor = currentDistance / touchStartDistance;
-                        const newScale = initialScale * scaleFactor;
-                        zoomAtPoint(newScale, centerX, centerY);
+            // Touch events
+            const handleTouch = {
+                start: function(e) {
+                    e.preventDefault();
+                    if (e.touches.length === 1) {
+                        isDragging = true;
+                        lastX = e.touches[0].clientX;
+                        lastY = e.touches[0].clientY;
+                    } else if (e.touches.length === 2) {
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        touchStartDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+                        initialScale = scale;
                     }
+                },
+                move: function(e) {
+                    e.preventDefault();
+                    if (e.touches.length === 1 && isDragging) {
+                        const touch = e.touches[0];
+                        const dx = touch.clientX - lastX;
+                        const dy = touch.clientY - lastY;
+                        posX += dx;
+                        posY += dy;
+                        lastX = touch.clientX;
+                        lastY = touch.clientY;
+                        updateView();
+                    } else if (e.touches.length === 2) {
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const currentDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+                        if (touchStartDistance > 0) {
+                            const centerX = (touch1.clientX + touch2.clientX) / 2;
+                            const centerY = (touch1.clientY + touch2.clientY) / 2;
+                            const newScale = initialScale * (currentDistance / touchStartDistance);
+                            zoomAtPoint(newScale, centerX, centerY);
+                        }
+                    }
+                },
+                end: function(e) {
+                    e.preventDefault();
+                    isDragging = false;
+                    touchStartDistance = 0;
                 }
-            }, { passive: false });
+            };
             
-            window.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                isDragging = false;
-                touchStartDistance = 0;
-            }, { passive: false });
+            window.addEventListener('touchstart', handleTouch.start, { passive: false });
+            window.addEventListener('touchmove', handleTouch.move, { passive: false });
+            window.addEventListener('touchend', handleTouch.end, { passive: false });
             
             // Zoom buttons
             zoomInBtn.addEventListener('click', () => {
@@ -442,7 +403,7 @@
                 zoomAtPoint(scale - config.zoomStep, viewportWidth/2, viewportHeight/2);
             });
             
-            // Handle window resize
+            // Resize handler
             window.addEventListener('resize', function() {
                 viewportWidth = window.innerWidth;
                 viewportHeight = window.innerHeight;
